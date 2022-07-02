@@ -7,9 +7,11 @@ import com.gabrielhd.practice.player.PlayerData;
 
 import java.sql.*;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 
-public class SQLite implements DataHandler {
+public class SQLite extends DataHandler {
 
     private final String table;
     private Connection connection;
@@ -77,74 +79,9 @@ public class SQLite implements DataHandler {
 
         plugin.getLogger().log(Level.INFO, "SQLite Setup finished");
     }
-    
-    public boolean playerExists(UUID uuid) {
-        try {
-            ResultSet rs = this.query("SELECT * FROM " + this.table + " WHERE UUID='" + uuid.toString() + "'");
-            return rs != null && rs.next() && rs.getString("UUID") != null;
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-    
-    public void createPlayer(UUID uuid) {
-        if (this.connection != null) {
-            try {
-                if (!this.playerExists(uuid)) {
-                    this.connection.createStatement().executeUpdate("INSERT INTO " + this.table + " (UUID, Wins, Kills, Deaths, Played, Level, Exp) VALUES ('" + uuid + "', '0', '0', '0', '0', '1', '10');");
-                }
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    public ResultSet query(String query) {
-        try {
-            Statement stmt = this.connection.createStatement();
-            return stmt.executeQuery(query);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    @Override
-    public void loadPlayer(PlayerData playerData) {
-        ResultSet resultSet = this.query("SELECT * FROM '" + this.table + "' WHERE UUID='" + playerData.getUuid() + "'");
-        try {
-            if (resultSet != null && resultSet.next()) {
 
-            }
-            else {
-                this.createPlayer(playerData.getUuid());
-            }
-        }
-        catch (SQLException ex) {
-            this.createPlayer(playerData.getUuid());
-        }
-    }
-    
     @Override
-    public void uploadPlayer(PlayerData playerData) {
-        if (this.connection != null) {
-
-        }
-    }
-    
-    @Override
-    public void close() {
-        try {
-            if (this.connection != null && !this.connection.isClosed()) {
-                this.connection.close();
-            }
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+    public Connection getConnection() {
+        return null;
     }
 }

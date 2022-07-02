@@ -13,7 +13,7 @@ public class Database {
     public Database(Practice plugin) {
         FileConfiguration data = new YamlConfig(plugin, "Settings");
         if (data.getString("StorageType", "SQLite").equalsIgnoreCase("MySQL")) {
-            Database.storage = new MySQL(plugin, data.getString("MySQL.Host"), data.getString("MySQL.Port"), data.getString("MySQL.Database"), data.getString("MySQL.Username"), data.getString("MySQL.Password"));
+            Database.storage = new MySQL(plugin, data.getString("Database.Host"), data.getString("Database.Port"), data.getString("Database.Database"), data.getString("Database.Username"), data.getString("Database.Password"));
         }
         else {
             Database.storage = new SQLite(plugin);

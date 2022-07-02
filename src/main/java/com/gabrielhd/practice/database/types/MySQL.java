@@ -9,9 +9,11 @@ import com.zaxxer.hikari.pool.HikariPool;
 
 import java.sql.*;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 
-public class MySQL implements DataHandler {
+public class MySQL extends DataHandler {
 
     private final Practice plugin;
 
@@ -76,28 +78,6 @@ public class MySQL implements DataHandler {
         plugin.getLogger().log(Level.INFO, "Connection arguments loaded, Hikari ConnectionPool ready!");
     }
     
-    public ResultSet query(String query) {
-        try {
-            Statement stmt = this.connection.createStatement();
-            return stmt.executeQuery(query);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    public boolean playerExists(UUID uuid) {
-        try {
-            ResultSet rs = this.query("SELECT * FROM " + this.table + " WHERE UUID='" + uuid.toString() + "'");
-            return rs != null && rs.next() && rs.getString("UUID") != null;
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-    
     public void setupTable() {
         try {
             Statement statement = this.connection.createStatement();
@@ -141,51 +121,9 @@ public class MySQL implements DataHandler {
             e.printStackTrace();
         }
     }
-    
-    public void createPlayer(UUID uuid) {
-        if (this.connection != null) {
-            try {
-                if (!this.playerExists(uuid)) {
-                    this.connection.createStatement().executeUpdate("INSERT INTO " + this.table + " (UUID, Wins, Kills, Deaths, Played, Level, Exp) VALUES ('" + uuid + "', '0', '0', '0', '0', '1', '10');");
-                }
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    @Override
-    public void loadPlayer(PlayerData playerData) {
-        ResultSet resultSet = this.query("SELECT * FROM '" + this.table + "' WHERE UUID='" + playerData.getUuid() + "'");
-        try {
-            if (resultSet != null && resultSet.next()) {
 
-            }
-            else {
-                this.createPlayer(playerData.getUuid());
-            }
-        }
-        catch (SQLException ex) {
-            this.createPlayer(playerData.getUuid());
-        }
-    }
-    
     @Override
-    public void uploadPlayer(PlayerData playerData) {
-        if (this.connection != null) {
-
-        }
-    }
-    
-    @Override
-    public void close() {
-        try {
-            if (this.connection != null && !this.connection.isClosed()) {
-                this.connection.close();
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+    public Connection getConnection() {
+        return null;
     }
 }

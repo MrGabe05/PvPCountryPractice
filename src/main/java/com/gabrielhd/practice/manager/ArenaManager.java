@@ -26,6 +26,7 @@ public class ArenaManager {
 
     private void loadArenas() {
         File folderArenas = new File(Practice.getInstance().getDataFolder(), "arenas/");
+        if(!folderArenas.exists()) folderArenas.mkdir();
 
         Arrays.stream(folderArenas.listFiles()).filter(File::isFile).filter(file -> file.getPath().endsWith(".yml")).forEach(file -> {
             YamlConfig configArena = new YamlConfig(Practice.getInstance(), file);
@@ -55,7 +56,29 @@ public class ArenaManager {
 
     public void saveArenas() {
         this.arenas.values().forEach(arena -> {
-            YamlConfig configArena = new YamlConfig(Practice.getInstance(), arena.getName() + ".yml");
+            YamlConfig configArena = new YamlConfig(Practice.getInstance(), "arenas/" + arena.getName() + ".yml");
+
+            configArena.set("name", arena.getName());
+            configArena.set("enabled", arena.isEnabled());
+            configArena.set("a", LocUtils.LocationToString(arena.getA()));
+            configArena.set("b", LocUtils.LocationToString(arena.getB()));
+            configArena.set("max", LocUtils.LocationToString(arena.getCuboid().getL1()));
+            configArena.set("min", LocUtils.LocationToString(arena.getCuboid().getL2()));
+
+            if(arena.getStandArenas() != null && !arena.getStandArenas().isEmpty()) {
+                int i = 0;
+
+                for(StandArena standArena : arena.getStandArenas()) {
+                    configArena.set("arenas." + i + ".a", LocUtils.LocationToString(standArena.getA()));
+                    configArena.set("arenas." + i + ".b", LocUtils.LocationToString(standArena.getB()));
+                    configArena.set("arenas." + i + ".max", LocUtils.LocationToString(standArena.getCuboid().getL1()));
+                    configArena.set("arenas." + i + ".min", LocUtils.LocationToString(standArena.getCuboid().getL2()));
+
+                    i++;
+                }
+            }
+
+            configArena.save();
         });
     }
 
@@ -74,7 +97,7 @@ public class ArenaManager {
     public Arena getRandomArena(Kit kit) {
         List<Arena> enabledArenas = new ArrayList<>();
         for (Arena arena : this.arenas.values()) {
-            if (!arena.isEnabled() || kit.getExcludedArenas().contains(arena.getName()) || (kit.getArenas().size() > 0 && !kit.getArenas().contains(arena.getName()))) continue;
+            if (!arena.isEnabled() || kit.getBlacklistArenas().contains(arena.getName()) || (kit.getWhitelistArenas().size() > 0 && !kit.getWhitelistArenas().contains(arena.getName()))) continue;
 
             enabledArenas.add(arena);
         }

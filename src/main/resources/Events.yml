@@ -1,0 +1,5 @@
+Sumo:
+  Enabled: true
+  # Minimum players to start
+  Min: 4
+  Max: 100

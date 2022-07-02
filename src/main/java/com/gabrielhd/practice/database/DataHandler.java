@@ -2,10 +2,24 @@ package com.gabrielhd.practice.database;
 
 import com.gabrielhd.practice.player.PlayerData;
 
-public interface DataHandler {
-    void loadPlayer(PlayerData p0);
-    
-    void uploadPlayer(PlayerData p0);
+import java.sql.Connection;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
-    void close();
+public abstract class DataHandler {
+
+    public abstract Connection getConnection();
+
+    public CompletionStage<Boolean> loadPlayer(PlayerData playerData) {
+        return CompletableFuture.supplyAsync(() -> {
+            return true;
+        });
+    }
+
+
+    public CompletionStage<Boolean> uploadPlayer(PlayerData playerData) {
+        return CompletableFuture.supplyAsync(() -> {
+            return true;
+        });
+    }
 }

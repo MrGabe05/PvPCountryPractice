@@ -24,8 +24,8 @@ public class Kit {
     private ItemStack[] contents;
     private ItemStack[] kitEditContents;
 
-    private List<String> arenas;
-    private List<String> excludedArenas;
+    private List<String> whitelistArenas;
+    private List<String> blacklistArenas;
 
     public Kit(String name) {
         this.name = name;
