@@ -53,6 +53,10 @@ public class KitManager {
         });
     }
 
+    public Kit getKit(String name) {
+        return this.kits.get(name.toLowerCase(Locale.ROOT));
+    }
+
     public Set<String> getKitsNames() {
         return this.kits.keySet();
     }
