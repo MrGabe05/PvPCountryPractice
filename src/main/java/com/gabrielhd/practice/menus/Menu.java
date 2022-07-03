@@ -1,8 +1,7 @@
 package com.gabrielhd.practice.menus;
 
-import com.gabrielhd.practice.listeners.MenuListener;
-import com.gabrielhd.practice.utils.BuilderItem;
-import com.gabrielhd.practice.utils.Color;
+import com.gabrielhd.practice.utils.items.BuilderItem;
+import com.gabrielhd.practice.utils.text.Color;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;

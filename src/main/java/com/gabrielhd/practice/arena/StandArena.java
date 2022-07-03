@@ -1,6 +1,6 @@
 package com.gabrielhd.practice.arena;
 
-import com.gabrielhd.practice.utils.Cuboid;
+import com.gabrielhd.practice.utils.others.Cuboid;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;

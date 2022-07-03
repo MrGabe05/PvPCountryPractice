@@ -1,4 +1,4 @@
-package com.gabrielhd.practice.utils;
+package com.gabrielhd.practice.utils.items;
 
 import lombok.Getter;
 import org.bukkit.ChatColor;
@@ -153,8 +153,9 @@ public class BuilderItem {
         return this.glow;
     }
     
-    public void setGlow(boolean glow) {
+    public BuilderItem setGlow(boolean glow) {
         this.glow = glow;
+        return this;
     }
     
     public BuilderItem setPotion(String s, Material mat, boolean potionUpgraded, boolean potionExtended) {

@@ -2,6 +2,7 @@ package com.gabrielhd.practice.kit;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -29,5 +30,12 @@ public class Kit {
 
     public Kit(String name) {
         this.name = name;
+    }
+
+    public void applyToPlayer(Player player) {
+        player.getInventory().setContents(this.contents);
+        player.getInventory().setArmorContents(this.armor);
+
+        player.updateInventory();
     }
 }

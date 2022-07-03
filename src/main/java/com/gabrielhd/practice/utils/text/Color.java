@@ -1,4 +1,4 @@
-package com.gabrielhd.practice.utils;
+package com.gabrielhd.practice.utils.text;
 
 public class Color {
 

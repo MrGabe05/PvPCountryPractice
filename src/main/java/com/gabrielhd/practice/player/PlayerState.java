@@ -3,7 +3,7 @@ package com.gabrielhd.practice.player;
 public enum PlayerState {
 
     LOADING,
-    LOBBY,
+    SPAWN,
     FIGHTING,
     DUELING,
     QUEUE,

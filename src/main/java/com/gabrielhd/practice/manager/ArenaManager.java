@@ -5,7 +5,7 @@ import com.gabrielhd.practice.arena.Arena;
 import com.gabrielhd.practice.arena.StandArena;
 import com.gabrielhd.practice.config.YamlConfig;
 import com.gabrielhd.practice.kit.Kit;
-import com.gabrielhd.practice.utils.LocUtils;
+import com.gabrielhd.practice.utils.others.LocUtils;
 import lombok.Getter;
 import org.bukkit.Location;
 

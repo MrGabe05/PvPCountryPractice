@@ -1,4 +1,4 @@
-package com.gabrielhd.practice.utils;
+package com.gabrielhd.practice.utils.items;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;

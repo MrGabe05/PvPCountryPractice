@@ -15,6 +15,9 @@ public class PlayerData {
     private static final Map<UUID, PlayerData> players = new HashMap<>();
 
     private final UUID uuid;
+    private UUID currentMatchID;
+
+    private int teamID;
 
     private long kills;
     private long deaths;
@@ -33,7 +36,7 @@ public class PlayerData {
     private final Map<EventType, Integer> eventsWins;
     private final Map<EventType, Integer> eventsLosses;
 
-    private final Map<String, List<PlayerKit>> kits;
+    private final Map<String, Map<Integer, PlayerKit>> playerKits;
 
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
@@ -50,12 +53,12 @@ public class PlayerData {
         this.eventsWins = new HashMap<>();
         this.eventsLosses = new HashMap<>();
 
-        this.kits = new HashMap<>();
+        this.playerKits = new HashMap<>();
 
         Database.getStorage().loadPlayer(this).thenAccept(value -> {
             players.put(uuid, this);
 
-            this.playerState = PlayerState.LOBBY;
+            this.playerState = PlayerState.SPAWN;
         });
     }
 
@@ -129,8 +132,16 @@ public class PlayerData {
         return this.unrankedLosses.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
+    public Map<Integer, PlayerKit> getPlayerKits(String kitName) {
+        return this.playerKits.computeIfAbsent(kitName, k -> new HashMap());
+    }
+
     public static PlayerData of(Player player) {
-        return players.get(player.getUniqueId());
+        return of(player.getUniqueId());
+    }
+
+    public static PlayerData of(UUID uuid) {
+        return players.get(uuid);
     }
 
     public static void load(Player player) {

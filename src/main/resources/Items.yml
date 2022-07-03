@@ -1,0 +1,58 @@
+Spawn:
+  # Slot
+  1:
+    ID: IRON_SWORD
+    Name: "&a&lUnranked"
+    Lore:
+      - ""
+    Glow: false
+    Action: "unranked"
+    Enchants: []
+  2:
+    ID: DIAMOND_SWORD
+    Name: "&2&lRanked"
+    Lore:
+      - ""
+    Glow: false
+    Action: "ranked"
+    Enchants: []
+  3:
+    ID: BEACON
+    Name: "&c&lCreate Event"
+    Lore:
+      - ""
+    Glow: false
+    Action: "event"
+    Enchants: []
+  5:
+    ID: STICK
+    Name: "&aAny item"
+    Lore:
+      - "&ctest"
+    Glow: true
+    Action: "command:say %player% hello"
+    Enchants: []
+  7:
+    ID: NAME_TAG
+    Name: "&a&lCreate Party"
+    Lore:
+      - ""
+    Glow: false
+    Action: "party"
+    Enchants: []
+  8:
+    ID: WATCH
+    Name: "&e&lSettings"
+    Lore:
+      - ""
+    Glow: false
+    Action: "settings"
+    Enchants: []
+  9:
+    ID: BOOK
+    Name: "&1&lKit Editor"
+    Lore:
+      - ""
+    Glow: true
+    Action: "editor"
+    Enchants: []

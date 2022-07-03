@@ -1,4 +1,4 @@
-package com.gabrielhd.practice.utils;
+package com.gabrielhd.practice.utils.others;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
