@@ -75,21 +75,15 @@ public class EventManager {
         CustomEvent event = null;
         try {
             event = clazz.newInstance();
-        }
-        catch (InstantiationException | IllegalAccessException ex2) {
-            System.out.println(ex2);
+        } catch (InstantiationException | IllegalAccessException ex2) {
+            ex2.printStackTrace();
         }
         this.events.put(clazz, event);
     }
 
     public void addSpectatorSumo(Player player, PlayerData playerData, Sumo event) {
         this.addSpectator(player, playerData, event);
-        if (event.getSpawnLocations().size() == 1) {
-            player.teleport(event.getSpawnLocations().get(0));
-        } else {
-            List<Location> spawnLocations = new ArrayList<>(event.getSpawnLocations());
-            player.teleport(spawnLocations.remove(ThreadLocalRandom.current().nextInt(spawnLocations.size())));
-        }
+        player.teleport(event.getSpawn());
 
         for (Player eventPlayer : event.getBukkitPlayers()) {
             player.showPlayer(eventPlayer);
@@ -120,10 +114,10 @@ public class EventManager {
     }
 
     public boolean isPlaying(Player player, CustomEvent event) {
-        return event.getParticipants().containsKey(player.getUniqueId());
+        return event.getPlayers().containsKey(player.getUniqueId());
     }
 
     public CustomEvent getEventPlaying(Player player) {
-        return this.events.values().stream().filter(event -> this.isPlaying(player, event)).findFirst().orElse(null);
+        return this.events.values().stream().filter(event -> event != null && this.isPlaying(player, event)).findFirst().orElse(null);
     }
 }

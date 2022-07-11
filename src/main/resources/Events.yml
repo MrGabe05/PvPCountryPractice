@@ -3,3 +3,8 @@ Sumo:
   # Minimum players to start
   Min: 4
   Max: 100
+  Locations:
+    First: null
+    Second: null
+    Max: null
+    Min: null

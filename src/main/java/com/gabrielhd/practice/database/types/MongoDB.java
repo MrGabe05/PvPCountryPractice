@@ -41,6 +41,11 @@ public class MongoDB extends DataHandler {
     }
 
     @Override
+    public Object getConnection() {
+        return null;
+    }
+
+    @Override
     public CompletionStage<Boolean> loadPlayer(PlayerData playerData) {
         return CompletableFuture.supplyAsync(() -> {
             DBCollection collection = database.getCollection("data");
@@ -54,10 +59,5 @@ public class MongoDB extends DataHandler {
             }
             return true;
         });
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

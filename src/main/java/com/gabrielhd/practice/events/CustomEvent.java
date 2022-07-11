@@ -16,12 +16,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter @Setter
-public abstract class CustomEvent {
+public abstract class CustomEvent<K extends EventPlayer> {
 
     private final String name;
 
@@ -30,35 +29,35 @@ public abstract class CustomEvent {
     private int minPlayers;
     private int maxPlayers;
 
-    private Location spawn;
-
     private EventState state;
     private EventType eventType;
 
-    private final Map<UUID, EventPlayer> participants;
+    private Location max;
+    private Location min;
 
-    public CustomEvent(String name, Location spawn, EventType eventType) {
+    public CustomEvent(String name, EventType eventType) {
         this.name = name;
-        this.spawn = spawn;
         this.eventType = eventType;
         this.minPlayers = 4;
         this.maxPlayers = 50;
-
-        this.participants = new HashMap<>();
     }
 
     public void startCountdown() {
         if (this.getCountdownTask().isEnded()) {
             this.getCountdownTask().setTimeUntilStart(this.getCountdownTask().getCountdownTime());
             this.getCountdownTask().setEnded(false);
-        }
-        else {
+        } else {
             this.getCountdownTask().runTaskTimerAsynchronously(Practice.getInstance(), 20L, 20L);
         }
     }
 
     public boolean joinEvent(Player player) {
-        if (this.participants.size() >= this.maxPlayers) {
+        if(this.getSpawn() == null) {
+            Lang.SUMO_SPAWN_NULL.send(player);
+            return false;
+        }
+        if (this.getPlayers().size() >= this.maxPlayers) {
+            Lang.SUMO_LIMIT.send(player);
             return false;
         }
 
@@ -67,21 +66,29 @@ public abstract class CustomEvent {
 
         PlayerUtil.clearPlayer(player);
 
-        if (this.getSpawnLocations().size() == 1) {
-            player.teleport(this.getSpawnLocations().get(0));
-        } else {
-            List<Location> spawnLocations = new ArrayList<>(this.getSpawnLocations());
-
-            player.teleport(spawnLocations.remove(ThreadLocalRandom.current().nextInt(spawnLocations.size())));
-        }
+        player.teleport(this.getSpawn());
 
         for (Player other : this.getBukkitPlayers()) {
             other.showPlayer(player);
             player.showPlayer(other);
         }
 
-        this.sendMessage(Lang.JOINED_EVENT, new TextPlaceholders().set("%player%", player.getName()).set("%players%", this.participants.size()));
+        this.sendMessage(Lang.JOINED_EVENT, new TextPlaceholders().set("%player%", player.getName()).set("%players%", this.getPlayers().size()));
         return true;
+    }
+
+    public void kill(Player player) {
+        if (this.onDeath() != null) {
+            this.onDeath().accept(player);
+        }
+    }
+
+    public void leave(Player player) {
+        if (this.onDeath() != null) {
+            this.onDeath().accept(player);
+        }
+        this.getPlayers().remove(player.getUniqueId());
+        Practice.getInstance().getPlayerManager().sendToSpawnAndReset(player);
     }
 
     public void start() {
@@ -97,11 +104,11 @@ public abstract class CustomEvent {
         Practice.getInstance().getEventManager().setCooldown(System.currentTimeMillis() + 300000L);
 
         if (this.eventType == EventType.SUMO) {
-            Sumo sumoEvent = (Sumo)this;
+            Sumo sumoEvent = (Sumo) this;
 
-            for(Player sPlayer : Bukkit.getOnlinePlayers()) {
+            for (Player sPlayer : Bukkit.getOnlinePlayers()) {
                 boolean inEvent = Practice.getInstance().getEventManager().getEventPlaying(sPlayer) != null;
-                if(inEvent) {
+                if (inEvent) {
                     Practice.getInstance().getPlayerManager().sendToSpawnEventFinish(sPlayer.getPlayer());
                 }
             }
@@ -110,7 +117,7 @@ public abstract class CustomEvent {
             }
         }
 
-        this.getParticipants().clear();
+        this.getPlayers().clear();
 
         this.setState(EventState.UNANNOUNCED);
 
@@ -124,26 +131,30 @@ public abstract class CustomEvent {
             }
         }
         Practice.getInstance().getEventManager().getSpectators().clear();
-        //this.getCountdownTask().setEnded(true);
+        this.getCountdownTask().setEnded(true);
     }
 
     public Set<Player> getBukkitPlayers() {
-        return this.participants.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).collect(Collectors.toSet());
+        return this.getPlayers().keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     public void sendMessage(Lang message, TextPlaceholders textPlaceholders) {
-        this.getBukkitPlayers().forEach(player -> player.sendMessage(message.get(player, textPlaceholders)));
+        this.getBukkitPlayers().forEach(player -> message.send(player, textPlaceholders));
     }
 
     public EventPlayer getPlayer(UUID uuid) {
-        return this.participants.get(uuid);
+        return this.getPlayers().get(uuid);
     }
+
+    public abstract Map<UUID, K> getPlayers();
 
     public abstract EventCountdownTask getCountdownTask();
 
-    public abstract List<Location> getSpawnLocations();
+    public abstract Location getSpawn();
 
     public abstract void onStart();
+
+    public abstract Consumer<Player> onJoin();
 
     public abstract Consumer<Player> onDeath();
 }

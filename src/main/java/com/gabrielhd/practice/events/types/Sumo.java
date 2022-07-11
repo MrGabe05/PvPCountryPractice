@@ -1,6 +1,7 @@
 package com.gabrielhd.practice.events.types;
 
 import com.gabrielhd.practice.Practice;
+import com.gabrielhd.practice.config.YamlConfig;
 import com.gabrielhd.practice.events.CustomEvent;
 import com.gabrielhd.practice.events.EventPlayer;
 import com.gabrielhd.practice.events.EventType;
@@ -8,8 +9,10 @@ import com.gabrielhd.practice.events.tasks.EventCountdownTask;
 import com.gabrielhd.practice.events.tasks.SumoCountdownTask;
 import com.gabrielhd.practice.lang.Lang;
 import com.gabrielhd.practice.player.PlayerData;
+import com.gabrielhd.practice.utils.others.LocUtils;
 import com.gabrielhd.practice.utils.others.PlayerUtil;
 import com.gabrielhd.practice.utils.text.TextPlaceholders;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,30 +28,42 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter
-public class Sumo extends CustomEvent {
+public class Sumo extends CustomEvent<EventPlayer> {
 
-    private final Location sumoFirst;
-    private final Location sumoSecond;
+    private Location spawn;
+    private Location sumoFirst;
+    private Location sumoSecond;
 
     private final Set<UUID> fighting;
 
     private WaterCheckTask waterCheckTask;
     private final SumoCountdownTask countdownTask;
 
-    public Sumo(Location spawn, Location sumoFirst, Location sumoSecond) {
-        super("Sumo", spawn, EventType.SUMO);
+    private final Map<UUID, EventPlayer> players;
 
-        this.sumoFirst = sumoFirst;
-        this.sumoSecond = sumoSecond;
+    public Sumo() {
+        super("Sumo", EventType.SUMO);
+
+        YamlConfig eventConfig = new YamlConfig(Practice.getInstance(), "Events");
+
+        if(eventConfig.isSet("Sumo.Locations.Spawn")) this.spawn = LocUtils.StringToLocation(eventConfig.getString("Sumo.Locations.Spawn"));
+        if(eventConfig.isSet("Sumo.Locations.First")) this.sumoFirst = LocUtils.StringToLocation(eventConfig.getString("Sumo.Locations.First"));
+        if(eventConfig.isSet("Sumo.Locations.Second")) this.sumoSecond = LocUtils.StringToLocation(eventConfig.getString("Sumo.Locations.Second"));
 
         this.fighting = new HashSet<>();
+        this.players = new HashMap<>();
 
         this.countdownTask = new SumoCountdownTask(this);
     }
 
     @Override
-    public List<Location> getSpawnLocations() {
-        return Collections.singletonList(this.getSpawn());
+    public Location getSpawn() {
+        return this.spawn;
+    }
+
+    @Override
+    public Map<UUID, EventPlayer> getPlayers() {
+        return this.players;
     }
 
     @Override
@@ -60,6 +75,11 @@ public class Sumo extends CustomEvent {
     public void onStart() {
         (this.waterCheckTask = new WaterCheckTask()).runTaskTimer(Practice.getInstance(), 0L, 10L);
         this.selectPlayers();
+    }
+
+    @Override
+    public Consumer<Player> onJoin() {
+        return player -> this.players.put(player.getUniqueId(), new EventPlayer(player.getUniqueId()));
     }
 
     @Override
@@ -85,10 +105,8 @@ public class Sumo extends CustomEvent {
                     PlayerUtil.clearPlayer(killer);
                     Practice.getInstance().getPlayerManager().giveLobbyItems(killer);
 
-                    if (this.getSpawnLocations().size() == 1) {
-                        player.teleport(this.getSpawnLocations().get(0));
-                        killer.teleport(this.getSpawnLocations().get(0));
-                    }
+                    player.teleport(this.getSpawn());
+                    killer.teleport(this.getSpawn());
 
                     this.sendMessage(Lang.EVENT_PLAYER_ELIMINATED, new TextPlaceholders().set("%player%", player.getName()).set("%killer%", killer.getName()));
 
@@ -119,7 +137,7 @@ public class Sumo extends CustomEvent {
 
             winnerData.getEventsWins().put(EventType.SUMO, winnerData.getEventsWins().getOrDefault(EventType.SUMO, 0) + 1);
 
-            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(Lang.WINNING_EVENT.get(player, new TextPlaceholders().set("%winner%", winner.getName()))));
+            Bukkit.getOnlinePlayers().forEach(player -> Lang.EVENT_WINNING.send(player, new TextPlaceholders().set("%winner%", winner.getName())));
 
             this.fighting.clear();
             this.end();
@@ -163,7 +181,60 @@ public class Sumo extends CustomEvent {
             }
         }
 
-        this.sendMessage(Lang.STARTING_EVENT_FIGHT, new TextPlaceholders().set("%player_1%", picked1.getName()).set("%player_2%", picked2.getName()));
+        this.sendMessage(Lang.EVENT_STARTING_FIGHT, new TextPlaceholders().set("%player_1%", picked1.getName()).set("%player_2%", picked2.getName()));
+    }
+
+    @Getter
+    public class SumoFightTask extends BukkitRunnable {
+
+        private final Player player;
+        private final Player other;
+        private final EventPlayer playerSumo;
+        private final EventPlayer otherSumo;
+        private int time;
+
+        @Override
+        public void run() {
+            if (this.player == null || this.other == null || !this.player.isOnline() || !this.other.isOnline()) {
+                this.cancel();
+                return;
+            }
+            if (this.time == 90) {
+                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 3));
+            }
+            else if (this.time == 89) {
+                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 2));
+            }
+            else if (this.time == 88) {
+                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 1));
+            }
+            else if (this.time == 87) {
+                Lang.EVENT_STARTED_FIGHT.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders());
+
+                this.otherSumo.setState(EventPlayer.PlayerState.FIGHTING);
+                this.playerSumo.setState(EventPlayer.PlayerState.FIGHTING);
+            }
+            else if (this.time <= 0) {
+                List<Player> players = Arrays.asList(this.player, this.other);
+                Player winner = players.get(ThreadLocalRandom.current().nextInt(players.size()));
+                players.stream().filter(pl -> !pl.equals(winner)).forEach(pl -> Sumo.this.onDeath().accept(pl));
+                this.cancel();
+                return;
+            }
+            if (Arrays.asList(30, 25, 20, 15, 10, 5, 4, 3, 2, 1).contains(this.time)) {
+                Lang.EVENT_ENDING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", this.time));
+
+            }
+            --this.time;
+        }
+
+        public SumoFightTask(Player player, Player other, EventPlayer playerSumo, EventPlayer otherSumo) {
+            this.time = 90;
+            this.player = player;
+            this.other = other;
+            this.playerSumo = playerSumo;
+            this.otherSumo = otherSumo;
+        }
     }
 
     private Player getRandomPlayer() {
@@ -181,14 +252,14 @@ public class Sumo extends CustomEvent {
     }
 
     public List<UUID> getByState(EventPlayer.PlayerState state) {
-        return this.getParticipants().values().stream().filter(player -> player.getState() == state).map(EventPlayer::getUuid).collect(Collectors.toList());
+        return this.getPlayers().values().stream().filter(player -> player.getState() == state).map(EventPlayer::getUuid).collect(Collectors.toList());
     }
 
     public class WaterCheckTask extends BukkitRunnable {
 
         @Override
         public void run() {
-            if (Sumo.this.getParticipants().size() <= 1) {
+            if (Sumo.this.getPlayers().size() <= 1) {
                 return;
             }
 

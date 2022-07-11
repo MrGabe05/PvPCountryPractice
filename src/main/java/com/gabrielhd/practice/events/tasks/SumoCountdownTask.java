@@ -20,7 +20,7 @@ public class SumoCountdownTask extends EventCountdownTask {
     
     @Override
     public boolean canStart() {
-        return this.getEvent().getParticipants().size() >= 4;
+        return this.getEvent().getPlayers().size() >= 4;
     }
     
     @Override

@@ -1,0 +1,26 @@
+Scoreboard:
+  Enabled: true
+  Lobby:
+    Title: "&cPvPCountry"
+    Lines:
+      - "Lobby scoreboard"
+  Queue:
+    Title: "&cPvPCountry"
+    Normal:
+      - "Queue normal scoreboard"
+    Party:
+      - "Queue party scoreboard"
+  Game:
+    Title: "&cPvPCountry"
+    Lines:
+      - "Game scoreboard"
+  FFA:
+    Title: "&cPvPCountry"
+    Lines:
+      - "FFA scoreboard"
+  Event:
+    Title: "&cPvPCountry"
+    Starting:
+      - "Event starting scoreboard"
+    Ingame:
+      - "Event ingame scoreboard"

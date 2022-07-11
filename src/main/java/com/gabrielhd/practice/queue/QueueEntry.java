@@ -1,5 +1,8 @@
 package com.gabrielhd.practice.queue;
 
+import lombok.Getter;
+
+@Getter
 public class QueueEntry {
 
     private final int elo;

@@ -1,6 +1,5 @@
 package com.gabrielhd.practice.arena;
 
-import com.gabrielhd.practice.utils.others.Cuboid;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -10,12 +9,14 @@ public class StandArena {
 
     private Location a;
     private Location b;
-    private Cuboid cuboid;
+    private Location min;
+    private Location max;
 
     public StandArena(Location a, Location b, Location min, Location max) {
         this.a = a;
         this.b = b;
 
-        this.cuboid = new Cuboid(max, min);
+        this.min = min;
+        this.max = max;
     }
 }

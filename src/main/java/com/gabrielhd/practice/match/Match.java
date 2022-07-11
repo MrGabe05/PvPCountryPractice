@@ -5,7 +5,9 @@ import com.gabrielhd.practice.arena.StandArena;
 import com.gabrielhd.practice.kit.Kit;
 import com.gabrielhd.practice.lang.Lang;
 import com.gabrielhd.practice.queue.QueueType;
-import com.gabrielhd.practice.utils.others.BlockTracker;
+import com.gabrielhd.practice.utils.inventory.Snapshot;
+import com.gabrielhd.practice.utils.block.BlockTracker;
+import com.gabrielhd.practice.utils.text.Clickable;
 import com.gabrielhd.practice.utils.text.TextPlaceholders;
 import io.netty.util.internal.ConcurrentSet;
 import lombok.Getter;
@@ -16,7 +18,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -42,7 +43,7 @@ public class Match {
     private final Set<Location> placedBlockLocations;
     private final Set<BlockState> originalBlockChanges;
 
-    private final Map<UUID, Inventory> snapshots;
+    private final Map<UUID, Snapshot> snapshots;
 
     private final BlockTracker blockTracker;
     
@@ -83,14 +84,14 @@ public class Match {
     }
     
     public void addSnapshot(Player player) {
-        this.snapshots.put(player.getUniqueId(), Bukkit.createInventory(player, 6 * 9));
+        this.snapshots.put(player.getUniqueId(), new Snapshot(player, this));
     }
     
     public boolean hasSnapshot(UUID uuid) {
         return this.snapshots.containsKey(uuid);
     }
     
-    public Inventory getSnapshot(UUID uuid) {
+    public Snapshot getSnapshot(UUID uuid) {
         return this.snapshots.get(uuid);
     }
     
@@ -122,8 +123,13 @@ public class Match {
     }
     
     public void broadcast(Lang message, TextPlaceholders textPlaceholders) {
-        this.teams.forEach(team -> team.alivePlayers().forEach(player -> player.sendMessage(message.get(player, textPlaceholders))));
-        this.spectatorPlayers().forEach(spectator -> spectator.sendMessage(message.get(spectator, textPlaceholders)));
+        this.teams.forEach(team -> team.alivePlayers().forEach(player -> message.send(player, textPlaceholders)));
+        this.spectatorPlayers().forEach(spectator -> message.send(spectator, textPlaceholders));
+    }
+
+    public void broadcast(Clickable message) {
+        this.teams.forEach(team -> team.alivePlayers().forEach(message::sendToPlayer));
+        this.spectatorPlayers().forEach(message::sendToPlayer);
     }
     
     public Stream<Player> spectatorPlayers() {

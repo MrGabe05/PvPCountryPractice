@@ -1,16 +1,11 @@
 package com.gabrielhd.practice.database.types;
 
 import com.gabrielhd.practice.Practice;
-import com.gabrielhd.practice.config.YamlConfig;
 import com.gabrielhd.practice.database.DataHandler;
-import com.gabrielhd.practice.player.PlayerData;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
 
 import java.sql.*;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 
 public class MySQL extends DataHandler {
@@ -29,7 +24,7 @@ public class MySQL extends DataHandler {
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + database;
         this.username = username;
         this.password = password;
-        this.table = new YamlConfig(plugin, "Settings").getString("MySQL.TableName");
+        this.table = "pvpcountry_";
         try {
             this.setConnectionArguments();
         } catch (RuntimeException e) {
@@ -123,7 +118,7 @@ public class MySQL extends DataHandler {
     }
 
     @Override
-    public Connection getConnection() {
+    public Object getConnection() {
         return null;
     }
 }

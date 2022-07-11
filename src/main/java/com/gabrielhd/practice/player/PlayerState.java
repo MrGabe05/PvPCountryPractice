@@ -4,11 +4,10 @@ public enum PlayerState {
 
     LOADING,
     SPAWN,
-    FIGHTING,
-    DUELING,
-    QUEUE,
-    EVENT,
-    FFA,
-    EDITING,
     SPECTATING,
+    QUEUE,
+    FIGHTING,
+    FFA,
+    STARTING,
+    EVENT,
 }

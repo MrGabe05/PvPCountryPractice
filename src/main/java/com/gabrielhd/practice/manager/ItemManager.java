@@ -24,24 +24,26 @@ public class ItemManager {
     public ItemManager() {
         YamlConfig itemsConfig = new YamlConfig(Practice.getInstance(), "Items");
 
+        this.specItems = getItems(itemsConfig, "Spec");
         this.spawnItems = getItems(itemsConfig, "Spawn");
         this.queueItems = getItems(itemsConfig, "Queue");
         this.partyItems = getItems(itemsConfig, "Party");
-        this.tournamentItems = getItems(itemsConfig, "Tournaments");
         this.eventItems = getItems(itemsConfig, "Events");
-        this.specItems = getItems(itemsConfig, "Spec");
         this.partySpecItems = getItems(itemsConfig, "PartySpec");
+        this.tournamentItems = getItems(itemsConfig, "Tournaments");
 
         this.defaultBook = new BuilderItem(Material.BOOK).build();
     }
 
     public ItemStack[] getItems(YamlConfig config, String name) {
+        if(!config.isSet(name)) return new ItemStack[9];
+
         Set<String> section = config.getConfigurationSection(name).getKeys(false);
         ItemStack[] items = new ItemStack[9];
         for(String item : section) {
             String path = name + "." + item + ".";
 
-            items[Integer.parseInt(item)] = new BuilderItem(Material.getMaterial(config.getString(path + "ID"))).setTitle(config.getString(path + "Name")).setLore(config.getStringList(path + "Lore")).setGlow(config.getBoolean(path + "Glow")).build();
+            items[(Integer.parseInt(item) - 1)] = new BuilderItem(Material.getMaterial(config.getString(path + "ID"))).setTitle(config.getString(path + "Name")).setLore(config.getStringList(path + "Lore")).setGlow(config.getBoolean(path + "Glow")).build();
         }
 
         return items;

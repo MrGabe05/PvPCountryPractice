@@ -1,0 +1,89 @@
+# Available types: MySQL, MongoDB, SQLite
+StorageType: sqlite
+Database:
+  Host: localhost
+  # Default port Mysql: 3306
+  # Default port MongoDB: 27017
+  Port: 3306
+  Database: pvpcountry
+  Username: pvpcountryuser
+  Password: pvpcountrypass
+
+Settings:
+  DefaultElo: 1000
+  # Ranked Settings
+  Rankeds:
+    Enabled: true
+    # For unlimited rankeds
+    # If this value is true, the rest of the options for ranked are useless.
+    Unlimited: false
+    # The daily default rankeds
+    Default: 20
+    # Players with certain permissions can have more ranked, depending on how it is configured
+    # Permission format: pvpcountry.rankeds.<amount>
+    # Default: false
+    PerPermissions: false
+    # Daily rankeds reset time
+    # Time in hours
+    ResetTime: 24
+    # If a player wins a ranked, he will keep the ranked used
+    # Default: false
+    WinRanked: false
+  # Unranked Settings
+  Unrankeds:
+    Enabled: true
+    # For unlimited unrankeds
+    # If this value is true, the rest of the options for unranked are useless.
+    Unlimited: true
+    # The daily default unrankeds
+    Default: 100
+    # Players with certain permissions can have more unranked, depending on how it is configured
+    # Permission format: pvpcountry.unrankeds.<amount>
+    # Default: false
+    PerPermissions: false
+    # Daily rankeds reset time
+    # Time in hours
+    ResetTime: 12
+    # If a player wins a ranked, he will keep the ranked used
+    # Default: false
+    WinUnranked: false
+  # Party Settings
+  Party:
+    Enabled: true
+    # Max players per party
+    # Use -1 for unlimited
+    Limit: 10
+    # Players with a certain permission will be able to have more slots for their party
+    # Permission format: pvpcountry.party.<amount>
+    # Default: false
+    PerPermissions: false
+    # Players with a certain permission, can put their party public, that is, any player can enter
+    # Permission format: pvpcountry.party.public
+    # If the person also has the broadcast permission, the server will be publicly announced that the party is open
+    # Permission broadcast format: pvpcountry.party.broadcast
+    PublicParty: true
+  # You can configure different languages, depending on how the language of the player's minecraft is configured, check the "lang" folder
+  MultiLenguaje: true
+  # If true, the player will get rewards by reaching certain amounts of elo
+  EloRewards: true
+  # If true, the player will get rewards by winning a certain number of rankeds
+  RankedRewards: true
+  # If true, the player will get rewards by winning a certain number of unranked
+  UnrankedRewards: false
+
+Rewards:
+  Elo:
+    1200:
+      - "command"
+    1400:
+      - "command"
+  Rankeds:
+    10:
+      - "command"
+    20:
+      - "command"
+    50:
+      - "command"
+  Unrankeds:
+    100:
+      - "command"
