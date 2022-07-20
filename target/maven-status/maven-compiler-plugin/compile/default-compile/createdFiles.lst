@@ -67,10 +67,10 @@ com\gabrielhd\practice\database\DataHandler.class
 com\gabrielhd\practice\manager\ArenaManager$1$1.class
 com\gabrielhd\practice\manager\InventoryManager$8.class
 com\gabrielhd\practice\tasks\DuplicateArenaRunnable.class
-com\gabrielhd\practice\utils\items\UtilItem.class
 com\gabrielhd\practice\events\EventPlayer$PlayerState.class
 com\gabrielhd\practice\tasks\MatchRunnable$1.class
 com\gabrielhd\practice\queue\QueueEntry.class
+com\gabrielhd\practice\utils\items\ActionItem.class
 com\gabrielhd\practice\player\PlayerKit.class
 com\gabrielhd\practice\manager\InventoryManager$12.class
 com\gabrielhd\practice\party\Party.class
@@ -136,6 +136,7 @@ com\gabrielhd\practice\manager\PlayerManager.class
 com\gabrielhd\practice\manager\QueueManager.class
 com\gabrielhd\practice\settings\ProfileOptions.class
 com\gabrielhd\practice\events\EventState.class
+com\gabrielhd\practice\utils\items\ActionItem$ActionItemType.class
 com\gabrielhd\practice\commands\time\SunsetCommand.class
 com\gabrielhd\practice\settings\item\ProfileOptionsItemState.class
 com\gabrielhd\practice\menus\Menu.class

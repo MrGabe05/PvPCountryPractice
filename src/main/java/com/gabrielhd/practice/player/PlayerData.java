@@ -36,17 +36,17 @@ public class PlayerData {
     private PlayerState playerState;
     private ProfileOptions options;
 
-    private final Map<String, Integer> rankedElo;
-    private final Map<String, Integer> rankedWins;
-    private final Map<String, Integer> rankedLosses;
+    private Map<String, Integer> rankedEloMap;
+    private Map<String, Integer> rankedWinsMap;
+    private Map<String, Integer> rankedLossesMap;
 
-    private final Map<String, Integer> unrankedWins;
-    private final Map<String, Integer> unrankedLosses;
+    private Map<String, Integer> unrankedWinsMap;
+    private Map<String, Integer> unrankedLossesMap;
 
-    private final Map<EventType, Integer> eventsWins;
-    private final Map<EventType, Integer> eventsLosses;
+    private Map<String, Integer> eventsWinsMap;
+    private Map<String, Integer> eventsLossesMap;
 
-    private final Map<String, Map<Integer, PlayerKit>> playerKits;
+    private Map<String, Map<Integer, PlayerKit>> playerKits;
 
     public PlayerData(UUID uuid, boolean load) {
         this.uuid = uuid;
@@ -58,15 +58,15 @@ public class PlayerData {
         this.eloRange = 250;
         this.pingRange = 50;
 
-        this.rankedElo = new HashMap<>();
-        this.rankedWins = new HashMap<>();
-        this.rankedLosses = new HashMap<>();
+        this.rankedEloMap = new HashMap<>();
+        this.rankedWinsMap = new HashMap<>();
+        this.rankedLossesMap = new HashMap<>();
 
-        this.unrankedWins = new HashMap<>();
-        this.unrankedLosses = new HashMap<>();
+        this.unrankedWinsMap = new HashMap<>();
+        this.unrankedLossesMap = new HashMap<>();
 
-        this.eventsWins = new HashMap<>();
-        this.eventsLosses = new HashMap<>();
+        this.eventsWinsMap = new HashMap<>();
+        this.eventsLossesMap = new HashMap<>();
 
         this.playerKits = new HashMap<>();
 
@@ -90,11 +90,11 @@ public class PlayerData {
     }
 
     public int getElo(String kitName) {
-        return this.rankedElo.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
+        return this.rankedEloMap.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
     public void setElo(String kitName, int elo) {
-        this.rankedElo.put(kitName.toLowerCase(Locale.ROOT), elo);
+        this.rankedEloMap.put(kitName.toLowerCase(Locale.ROOT), elo);
     }
 
     public int getRankedWins() {
@@ -108,11 +108,11 @@ public class PlayerData {
     }
 
     public int getRankedWins(String kitName) {
-        return this.rankedWins.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
+        return this.rankedWinsMap.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
     public void setRankedWins(String kitName, int wins) {
-        this.rankedWins.put(kitName.toLowerCase(Locale.ROOT), wins);
+        this.rankedWinsMap.put(kitName.toLowerCase(Locale.ROOT), wins);
     }
 
     public int getRankedLosses() {
@@ -126,11 +126,11 @@ public class PlayerData {
     }
 
     public int getRankedLosses(String kitName) {
-        return this.rankedLosses.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
+        return this.rankedLossesMap.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
     public void setRankedLosses(String kitName, int losses) {
-        this.rankedLosses.put(kitName.toLowerCase(Locale.ROOT), losses);
+        this.rankedLossesMap.put(kitName.toLowerCase(Locale.ROOT), losses);
     }
 
     public int getUnrankedWins() {
@@ -144,11 +144,11 @@ public class PlayerData {
     }
 
     public int getUnrankedWins(String kitName) {
-        return this.unrankedWins.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
+        return this.unrankedWinsMap.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
     public void setUnrankedWins(String kitName, int wins) {
-        this.unrankedWins.put(kitName.toLowerCase(Locale.ROOT), wins);
+        this.unrankedWinsMap.put(kitName.toLowerCase(Locale.ROOT), wins);
     }
 
     public int getUnrankedLosses() {
@@ -162,15 +162,31 @@ public class PlayerData {
     }
 
     public int getUnrankedLosses(String kitName) {
-        return this.unrankedLosses.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
+        return this.unrankedLossesMap.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> 0);
     }
 
     public void setUnrankedLosses(String kitName, int losses) {
-        this.unrankedLosses.put(kitName.toLowerCase(Locale.ROOT), losses);
+        this.unrankedLossesMap.put(kitName.toLowerCase(Locale.ROOT), losses);
+    }
+
+    public int getWinsEvent(EventType event) {
+        return this.eventsWinsMap.computeIfAbsent(event.name().toLowerCase(Locale.ROOT), e -> 0);
+    }
+
+    public void setWinsEvent(EventType event, int wins) {
+        this.eventsWinsMap.put(event.name().toLowerCase(Locale.ROOT), wins);
+    }
+
+    public int getLossesEvent(EventType event) {
+        return this.eventsLossesMap.computeIfAbsent(event.name().toLowerCase(Locale.ROOT), e -> 0);
+    }
+
+    public void setLossesEvent(EventType event, int losses) {
+        this.eventsLossesMap.put(event.name().toLowerCase(Locale.ROOT), losses);
     }
 
     public Map<Integer, PlayerKit> getPlayerKits(String kitName) {
-        return this.playerKits.computeIfAbsent(kitName, k -> new HashMap());
+        return this.playerKits.computeIfAbsent(kitName.toLowerCase(Locale.ROOT), k -> new HashMap());
     }
 
     public void addPlayerKit(int index, PlayerKit playerKit) {

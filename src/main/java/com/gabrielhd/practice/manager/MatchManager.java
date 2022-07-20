@@ -196,7 +196,7 @@ public class MatchManager {
         player.setWalkSpeed(0.0f);
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10000, -5));
         if (match.isParty() || match.isFFA()) {
-            player.getInventory().setContents(Practice.getInstance().getItemManager().getPartySpecItems());
+            player.getInventory().setContents(Practice.getInstance().getItemManager().getPartySpecItemStack());
         }
         player.updateInventory();
     }
@@ -216,7 +216,7 @@ public class MatchManager {
         player.teleport(target);
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.getInventory().setContents(Practice.getInstance().getItemManager().getSpecItems());
+        player.getInventory().setContents(Practice.getInstance().getItemManager().getSpecItemStack());
         player.updateInventory();
 
         Bukkit.getOnlinePlayers().forEach(online -> {

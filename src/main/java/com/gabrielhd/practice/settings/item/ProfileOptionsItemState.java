@@ -11,4 +11,13 @@ public enum ProfileOptionsItemState
     
     ProfileOptionsItemState(final String s, final int n) {
     }
+
+    public static ProfileOptionsItemState get(String name) {
+        for(ProfileOptionsItemState itemState : values()) {
+            if(itemState.name().equalsIgnoreCase(name)) {
+                return itemState;
+            }
+        }
+        return null;
+    }
 }

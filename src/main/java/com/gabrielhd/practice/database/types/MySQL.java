@@ -15,7 +15,7 @@ public class MySQL extends DataHandler {
     private final String url;
     private final String username;
     private final String password;
-    private final String table;
+
     private Connection connection;
     private HikariDataSource ds;
     
@@ -24,7 +24,7 @@ public class MySQL extends DataHandler {
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + database;
         this.username = username;
         this.password = password;
-        this.table = "pvpcountry_";
+
         try {
             this.setConnectionArguments();
         } catch (RuntimeException e) {
@@ -42,6 +42,7 @@ public class MySQL extends DataHandler {
             plugin.getLogger().log(Level.SEVERE, "Can't use the Hikari Connection Pool! Please, report this error to the developer!");
             throw e;
         }
+
         this.setupTable();
     }
     
@@ -72,53 +73,9 @@ public class MySQL extends DataHandler {
 
         plugin.getLogger().log(Level.INFO, "Connection arguments loaded, Hikari ConnectionPool ready!");
     }
-    
-    public void setupTable() {
-        try {
-            Statement statement = this.connection.createStatement();
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + this.table + " (UUID VARCHAR(100))");
-            DatabaseMetaData dm = this.connection.getMetaData();
-            ResultSet wins = dm.getColumns(null, null, this.table, "Wins");
-            if (!wins.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Wins int AFTER UUID;");
-            }
-            wins.close();
-            ResultSet kills = dm.getColumns(null, null, this.table, "Kills");
-            if (!kills.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Kills double AFTER Wins;");
-            }
-            kills.close();
-            ResultSet losses = dm.getColumns(null, null, this.table, "Deaths");
-            if (!losses.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Deaths int AFTER Kills;");
-            }
-            losses.close();
-            ResultSet played = dm.getColumns(null, null, this.table, "Played");
-            if (!played.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Played int AFTER Deaths;");
-            }
-            played.close();
-            ResultSet level = dm.getColumns(null, null, this.table, "Level");
-            if (!level.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Level int AFTER Played;");
-            }
-            level.close();
-            ResultSet exp = dm.getColumns(null, null, this.table, "Exp");
-            if (!exp.next()) {
-                statement.executeUpdate("ALTER TABLE " + this.table + " ADD COLUMN Exp int AFTER Level;");
-            }
-            exp.close();
-            statement.close();
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error inserting columns! Please check your configuration!");
-            plugin.getLogger().log(Level.SEVERE, "If this error persists, please report it to the developer!");
-
-            e.printStackTrace();
-        }
-    }
 
     @Override
-    public Object getConnection() {
-        return null;
+    public Connection getConnection() {
+        return this.connection;
     }
 }

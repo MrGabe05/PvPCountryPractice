@@ -98,7 +98,7 @@ public class EventManager {
 
         this.spectators.put(player.getUniqueId(), event);
 
-        player.getInventory().setContents(this.plugin.getItemManager().getSpecItems());
+        player.getInventory().setContents(this.plugin.getItemManager().getSpecItemStack());
         player.updateInventory();
 
         this.plugin.getServer().getOnlinePlayers().forEach(online -> {

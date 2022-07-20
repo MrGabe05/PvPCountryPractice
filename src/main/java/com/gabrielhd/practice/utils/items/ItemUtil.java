@@ -6,9 +6,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public final class ItemUtil
 {
@@ -29,6 +27,14 @@ public final class ItemUtil
             }
         }
         return result.toString();
+    }
+
+    public static ItemStack createItem(final Material m, final int amount, final short durability, final String name) {
+        ItemStack itemStack = new ItemStack(m, amount, durability);
+        if (name != null) {
+            itemStack = renameItem(itemStack, name);
+        }
+        return itemStack;
     }
     
     public static ItemStack enchantItem(final ItemStack itemStack, final ItemEnchant... enchantments) {
@@ -118,6 +124,81 @@ public final class ItemUtil
         meta.addItemFlags(flag);
         item.setItemMeta(meta);
         return item;
+    }
+
+    public static String contentsToString(ItemStack[] contents) {
+        StringBuilder builder = new StringBuilder();
+
+        for(ItemStack item : contents) {
+            builder.append("/item:");
+
+            if(item == null || item.getType() == Material.AIR || item.getAmount() < 1) {
+                builder.append("AIR");
+                continue;
+            }
+
+            ItemMeta itemMeta = item.getItemMeta();
+
+            builder.append("/:/").append(item.getData().getItemType().name());
+            builder.append("/:/").append(item.getAmount());
+            builder.append("/:/").append(item.getData().getData());
+            builder.append("/:/").append(itemMeta.getDisplayName());
+
+            builder.append("/lores:");
+            for(String lore : itemMeta.getLore()) {
+                builder.append("/:/").append(lore);
+            }
+            builder.append(":lores/");
+
+            builder.append("/enchants:");
+            for(Map.Entry<Enchantment, Integer> enchants : itemMeta.getEnchants().entrySet()) {
+                builder.append(enchants.getKey().getName()).append("/;/").append(enchants.getValue());
+            }
+            builder.append(":enchants/");
+
+            builder.append(":item/");
+        }
+
+        return builder.toString();
+    }
+
+    public static ItemStack[] stringToContents(String contents) {
+        ItemStack[] itemStacks = new ItemStack[0];
+        String[] itemString = contents.split("/item:");
+
+        for(int i = 0; i < itemString.length; i++) {
+            String[] itemData = itemString[i].split("/:/");
+
+            if(itemData[0].equalsIgnoreCase("AIR")) {
+                itemStacks[i] = new ItemStack(Material.AIR);
+                continue;
+            }
+
+            ItemStack item = createItem(Material.getMaterial(itemData[0]), Integer.parseInt(itemData[1]), Byte.parseByte(itemData[2]), itemData[3]);
+
+            int l;
+            for(l = 4; l < itemData.length; l++) {
+                String loreData = itemData[l];
+
+                if(loreData.equalsIgnoreCase(":lores/")) break;
+                if(loreData.equalsIgnoreCase("/lores:")) continue;
+
+                item = reloreItem(ReloreType.APPEND, item, loreData);
+            }
+
+            for(int e = l; e < itemData.length; e++) {
+                String enchant = itemData[e];
+
+                if(enchant.equalsIgnoreCase(":enchants/")) break;
+                if(enchant.equalsIgnoreCase("/enchants:")) continue;
+
+                String[] split = enchant.split("/;/");
+
+                item = enchantItem(item, new ItemEnchant(Enchantment.getByName(split[0]), Integer.parseInt(split[1])));
+            }
+        }
+
+        return itemStacks;
     }
     
     public enum ReloreType {

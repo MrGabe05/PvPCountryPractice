@@ -9,15 +9,15 @@ import com.gabrielhd.practice.player.PlayerData;
 import com.gabrielhd.practice.player.PlayerState;
 import com.gabrielhd.practice.queue.QueueEntry;
 import com.gabrielhd.practice.queue.QueueType;
+import com.gabrielhd.practice.utils.items.ActionItem;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class QueueManager {
 
@@ -50,7 +50,7 @@ public class QueueManager {
     
     private void giveQueueItems(Player player) {
         player.closeInventory();
-        player.getInventory().setContents(this.plugin.getItemManager().getQueueItems());
+        player.getInventory().setContents(this.plugin.getItemManager().getQueueItemStack());
         player.updateInventory();
     }
     

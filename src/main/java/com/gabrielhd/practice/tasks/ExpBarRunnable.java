@@ -12,7 +12,9 @@ public class ExpBarRunnable implements Runnable
     
     @Override
     public void run() {
-        final EnderpearlTimer timer = Practice.getInstance().getTimerManager().getTimer(EnderpearlTimer.class);
+        EnderpearlTimer timer = Practice.getInstance().getTimerManager().getTimer(EnderpearlTimer.class);
+        if(timer == null) return;
+
         for (final UUID uuid : timer.getCooldowns().keySet()) {
             final Player player = this.plugin.getServer().getPlayer(uuid);
             if (player != null) {

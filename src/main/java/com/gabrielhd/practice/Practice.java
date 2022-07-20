@@ -68,11 +68,11 @@ public class Practice extends JavaPlugin {
 
         this.loadSpawn();
         this.loadConfig();
-        this.loadTasks();
         this.registerManagers();
         this.registerCommands();
         this.registerListeners();
         this.loadWorldSettings();
+        this.loadTasks();
 
         if(new YamlConfig(this, "Scoreboard").getBoolean("Scoreboard.Enabled", true)) {
             new Aether(this, new PracticeBoard());

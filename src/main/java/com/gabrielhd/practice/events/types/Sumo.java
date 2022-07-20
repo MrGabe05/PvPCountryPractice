@@ -94,7 +94,7 @@ public class Sumo extends CustomEvent<EventPlayer> {
 
                     PlayerData playerData = PlayerData.of(player);
                     if (playerData != null) {
-                        playerData.getEventsLosses().put(EventType.SUMO, playerData.getEventsLosses().getOrDefault(EventType.SUMO, 0) + 1);
+                        playerData.setLossesEvent(EventType.SUMO, playerData.getLossesEvent(EventType.SUMO) + 1);
                     }
 
                     data.setState(EventPlayer.PlayerState.ELIMINATED);
@@ -135,7 +135,7 @@ public class Sumo extends CustomEvent<EventPlayer> {
             PlayerData winnerData = PlayerData.of(winner);
             if(winnerData == null) return;
 
-            winnerData.getEventsWins().put(EventType.SUMO, winnerData.getEventsWins().getOrDefault(EventType.SUMO, 0) + 1);
+            winnerData.setWinsEvent(EventType.SUMO, winnerData.getWinsEvent(EventType.SUMO) + 1);
 
             Bukkit.getOnlinePlayers().forEach(player -> Lang.EVENT_WINNING.send(player, new TextPlaceholders().set("%winner%", winner.getName())));
 
@@ -192,6 +192,7 @@ public class Sumo extends CustomEvent<EventPlayer> {
         private final EventPlayer playerSumo;
         private final EventPlayer otherSumo;
         private int time;
+        private int cooldownTime = 3;
 
         @Override
         public void run() {
@@ -199,22 +200,14 @@ public class Sumo extends CustomEvent<EventPlayer> {
                 this.cancel();
                 return;
             }
-            if (this.time == 90) {
-                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 3));
-            }
-            else if (this.time == 89) {
-                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 2));
-            }
-            else if (this.time == 88) {
-                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", 1));
-            }
-            else if (this.time == 87) {
+            if (Arrays.asList(90, 89, 88).contains(this.time)) {
+                Lang.EVENT_STARTING_FIGHT_BROADCAST.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders().set("%time%", this.cooldownTime--));
+            } else if (this.time == 87) {
                 Lang.EVENT_STARTED_FIGHT.send(Lists.newArrayList(this.player, this.other), new TextPlaceholders());
 
                 this.otherSumo.setState(EventPlayer.PlayerState.FIGHTING);
                 this.playerSumo.setState(EventPlayer.PlayerState.FIGHTING);
-            }
-            else if (this.time <= 0) {
+            } else if (this.time <= 0) {
                 List<Player> players = Arrays.asList(this.player, this.other);
                 Player winner = players.get(ThreadLocalRandom.current().nextInt(players.size()));
                 players.stream().filter(pl -> !pl.equals(winner)).forEach(pl -> Sumo.this.onDeath().accept(pl));

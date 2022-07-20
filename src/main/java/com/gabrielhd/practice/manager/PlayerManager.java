@@ -21,12 +21,12 @@ public class PlayerManager {
     public void giveLobbyItems(Player player) {
         boolean inParty = Party.of(player.getUniqueId()) != null;
         boolean inEvent = Practice.getInstance().getEventManager().getEventPlaying(player) != null;
-        ItemStack[] items = Practice.getInstance().getItemManager().getSpawnItems();
+        ItemStack[] items = Practice.getInstance().getItemManager().getSpawnItemStack();
 
         if (inEvent) {
-            items = Practice.getInstance().getItemManager().getEventItems();
+            items = Practice.getInstance().getItemManager().getEventItemStack();
         } else if (inParty) {
-            items = Practice.getInstance().getItemManager().getPartyItems();
+            items = Practice.getInstance().getItemManager().getPartyItemStack();
         }
         player.getInventory().setContents(items);
         player.updateInventory();

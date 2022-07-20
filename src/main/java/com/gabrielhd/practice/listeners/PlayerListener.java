@@ -11,6 +11,7 @@ import com.gabrielhd.practice.party.Party;
 import com.gabrielhd.practice.player.PlayerData;
 import com.gabrielhd.practice.player.PlayerKit;
 import com.gabrielhd.practice.player.PlayerState;
+import com.gabrielhd.practice.utils.items.ActionItem;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -30,7 +31,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public class PlayerListener implements Listener {
 
@@ -150,26 +150,6 @@ public class PlayerListener implements Listener {
             return;
         }
         PlayerData playerData = PlayerData.of(player);
-        if (playerData.getPlayerState() == PlayerState.SPECTATING) {
-            Party party = Party.of(player.getUniqueId());
-
-            ItemStack item = event.getItem();
-            if (item == null) {
-                return;
-            }
-            if(item.getType() == Material.NETHER_STAR) {
-                if (Practice.getInstance().getEventManager().getSpectators().containsKey(player.getUniqueId())) {
-                    Practice.getInstance().getEventManager().removeSpectator(player);
-                }
-                if(party == null) {
-                    Practice.getInstance().getMatchManager().removeSpectator(player);
-                    return;
-                }
-                party.leaveParty(player);
-            }
-            event.setCancelled(true);
-            return;
-        }
 
         if (event.getAction().name().endsWith("_BLOCK")) {
             if (event.getClickedBlock().getType().name().contains("SIGN") && event.getClickedBlock().getState() instanceof Sign) {
@@ -190,16 +170,14 @@ public class PlayerListener implements Listener {
 
         if (event.getAction().name().startsWith("RIGHT_")) {
             ItemStack item = event.getItem();
+            if (item == null) {
+                return;
+            }
+
             Party party = Party.of(player.getUniqueId());
 
             switch (playerData.getPlayerState()) {
-                case LOADING: {
-                    break;
-                }
                 case FIGHTING: {
-                    if (item == null) {
-                        return;
-                    }
                     Match match = Practice.getInstance().getMatchManager().getMatch(playerData);
                     switch (item.getType()) {
                         case ENDER_PEARL: {
@@ -233,131 +211,195 @@ public class PlayerListener implements Listener {
                     break;
                 }
                 case SPAWN: {
-                    if (item == null) {
+                    if(party != null) {
+                        for(ActionItem actionItem : this.plugin.getItemManager().getPartyItems()) {
+                            if(actionItem.getItem().isSimilar(item)) {
+                                switch (actionItem.getType()) {
+                                    case INFO: {
+                                        player.performCommand("party info");
+                                        return;
+                                    }
+                                    case DUEL: {
+                                        if (party != null && !party.isLeader(player)) {
+                                            Lang.PARTY_NOT_LEADER.send(player);
+                                            return;
+                                        }
+                                        player.openInventory(this.plugin.getInventoryManager().getPartyInventory().getCurrentPage());
+                                        return;
+                                    }
+                                    case EVENT: {
+                                        if (party != null && !party.isLeader(player)) {
+                                            player.sendMessage(ChatColor.RED + "No eres el líder de esta party.");
+                                            return;
+                                        }
+                                        player.openInventory(this.plugin.getInventoryManager().getPartyEventInventory().getCurrentPage());
+                                        return;
+                                    }
+                                    case EDITOR: {
+                                        player.openInventory(this.plugin.getInventoryManager().getEditorInventory().getCurrentPage());
+                                        return;
+                                    }
+                                    case LEAVE: {
+                                        if(party != null) party.leaveParty(player);
+                                        return;
+                                    }
+                                    case OPTIONS: {
+                                        if (party != null && !party.isLeader(player)) {
+                                            Lang.PARTY_NOT_LEADER.send(player);
+                                            return;
+                                        }
+                                        player.openInventory(this.plugin.getInventoryManager().getPartySettingsInventory().getCurrentPage());
+                                        return;
+                                    }
+                                    case COMMAND: {
+                                        String cmd = actionItem.getCommand();
+
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
+                                        return;
+                                    }
+                                    default: {
+                                        return;
+                                    }
+                                }
+                            }
+                        }
                         return;
                     }
-                    switch (item.getType()) {
-                        case DIAMOND_SWORD: {
-                            if (party != null && !party.isLeader(player)) {
-                                Lang.PARTY_NOT_LEADER.send(player);
-                                return;
+
+                    for(ActionItem actionItem : this.plugin.getItemManager().getSpawnItems()) {
+                        if(actionItem.getItem().isSimilar(item)) {
+                            switch (actionItem.getType()) {
+                                case RANKED: {
+                                    if (party != null && !party.isLeader(player)) {
+                                        Lang.PARTY_NOT_LEADER.send(player);
+                                        return;
+                                    }
+                                    if(playerData.getRankeds() == 0) {
+                                        player.sendMessage(ChatColor.RED + "¡No te quedan Rankeds! Juega partidas UnRankeds para obtener Rankeds gratis.");
+                                        return;
+                                    }
+                                    player.openInventory(Practice.getInstance().getInventoryManager().getRankedInventory().getCurrentPage());
+                                    return;
+                                }
+                                case UNRANKED: {
+                                    if (party != null && !party.isLeader(player)) {
+                                        Lang.PARTY_NOT_LEADER.send(player);
+                                        return;
+                                    }
+                                    player.openInventory(this.plugin.getInventoryManager().getUnrankedInventory().getCurrentPage());
+                                    return;
+                                }
+                                case EVENT: {
+                                    player.openInventory(Objects.requireNonNull(Menu.getPlayerMenu(player, "host")).getInv());
+                                    return;
+                                }
+                                case PARTY: {
+                                    Party.create(player);
+                                    return;
+                                }
+                                case EDITOR: {
+                                    player.openInventory(this.plugin.getInventoryManager().getEditorInventory().getCurrentPage());
+                                    return;
+                                }
+                                case OPTIONS: {
+                                    player.openInventory(playerData.getOptions().getInventory());
+                                    return;
+                                }
+                                case COMMAND: {
+                                    String cmd = actionItem.getCommand();
+
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
+                                    return;
+                                }
+                                default: {
+                                    return;
+                                }
                             }
-                            if(playerData.getRankeds() == 0) {
-                                player.sendMessage(ChatColor.RED + "¡No te quedan Rankeds! Juega partidas UnRankeds para obtener Rankeds gratis.");
-                                return;
-                            }
-                            player.openInventory(Practice.getInstance().getInventoryManager().getRankedInventory().getCurrentPage());
-                            break;
-                        }
-                        case IRON_SWORD: {
-                            if (party != null && !party.isLeader(player)) {
-                                player.sendMessage(ChatColor.RED + "No eres el líder de esta party.");
-                                return;
-                            }
-                            player.openInventory(this.plugin.getInventoryManager().getUnrankedInventory().getCurrentPage());
-                            break;
-                        }
-                        case EMERALD: {
-                            UUID rematching = this.plugin.getMatchManager().getRematcher(player.getUniqueId());
-                            Player rematcher = this.plugin.getServer().getPlayer(rematching);
-                            if (rematcher == null) {
-                                player.sendMessage(ChatColor.RED + "Ese jugador no está en línea.");
-                                return;
-                            }
-                            if (this.plugin.getMatchManager().getMatchRequest(rematcher.getUniqueId(), player.getUniqueId()) != null) {
-                                this.plugin.getServer().dispatchCommand(player, "accept " + rematcher.getName());
-                                break;
-                            }
-                            this.plugin.getServer().dispatchCommand(player, "duel " + rematcher.getName());
-                            break;
-                        }
-                        case BEACON: {
-                            player.openInventory(Objects.requireNonNull(Menu.getPlayerMenu(player, "host")).getInv());
-                            break;
-                        }
-                        case NAME_TAG: {
-                            Party.create(player);
-                            break;
-                        }
-                        case BOOK: {
-                            player.openInventory(this.plugin.getInventoryManager().getEditorInventory().getCurrentPage());
-                            break;
-                        }
-                        case SKULL_ITEM: {
-                            player.performCommand("party info");
-                            break;
-                        }
-                        case WATCH: {
-                            if (party != null && !party.isLeader(player)) {
-                                player.openInventory(this.plugin.getInventoryManager().getPartySettingsInventory().getCurrentPage());
-                                return;
-                            }
-                            player.performCommand("settings");
-                            break;
-                        }
-                        case DIAMOND_AXE: {
-                            if (party != null && !party.isLeader(player)) {
-                                player.sendMessage(ChatColor.RED + "No eres el líder de esta party.");
-                                return;
-                            }
-                            player.openInventory(this.plugin.getInventoryManager().getPartyEventInventory().getCurrentPage());
-                            break;
-                        }
-                        case IRON_AXE: {
-                            if (party != null && !party.isLeader(player)) {
-                                player.sendMessage(ChatColor.RED + "No eres el líder de esta party.");
-                                return;
-                            }
-                            player.openInventory(this.plugin.getInventoryManager().getPartyInventory().getCurrentPage());
-                            break;
-                        }
-                        case NETHER_STAR: {
-                            if(party != null) party.leaveParty(player);
-                            break;
                         }
                     }
-                    break;
+                    return;
                 }
                 case QUEUE: {
-                    if (item == null) {
-                        return;
+                    for(ActionItem actionItem : this.plugin.getItemManager().getQueueItems()) {
+                        if(actionItem.getItem().isSimilar(item)) {
+                            switch (actionItem.getType()) {
+                                case LEAVE: {
+                                    this.plugin.getQueueManager().removePlayerFromQueue(player);
+                                    return;
+                                }
+                                case COMMAND: {
+                                    String cmd = actionItem.getCommand();
+
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
+                                    return;
+                                }
+                                default: {
+                                    return;
+                                }
+                            }
+                        }
                     }
-                    if (item.getType() != Material.REDSTONE) {
-                        break;
-                    }
-                    if (party == null) {
-                        this.plugin.getQueueManager().removePlayerFromQueue(player);
-                        break;
-                    }
+                    return;
                 }
                 case EVENT: {
-                    if (item == null) {
-                        return;
-                    }
                     CustomEvent practiceEvent = this.plugin.getEventManager().getEventPlaying(player);
-                    if (item.getType() == Material.NETHER_STAR) {
-                        if (practiceEvent != null) {
-                            practiceEvent.leave(player);
-                            break;
+
+                    for(ActionItem actionItem : this.plugin.getItemManager().getEventItems()) {
+                        if(actionItem.getItem().isSimilar(item)) {
+                            switch (actionItem.getType()) {
+                                case LEAVE: {
+                                    if (practiceEvent != null) {
+                                        practiceEvent.leave(player);
+                                        return;
+                                    }
+                                    return;
+                                }
+                                case COMMAND: {
+                                    String cmd = actionItem.getCommand();
+
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
+                                    return;
+                                }
+                                default: {
+                                    return;
+                                }
+                            }
                         }
-                        break;
                     }
+                    return;
                 }
                 case SPECTATING: {
-                    if (item == null) {
-                        return;
-                    }
-                    if (item.getType() == Material.NETHER_STAR) {
-                        if (this.plugin.getEventManager().getSpectators().containsKey(player.getUniqueId())) {
-                            this.plugin.getEventManager().removeSpectator(player);
-                            break;
+                    for(ActionItem actionItem : this.plugin.getItemManager().getSpecItems()) {
+                        if(actionItem.getItem().isSimilar(item)) {
+                            switch (actionItem.getType()) {
+                                case LEAVE: {
+                                    if (this.plugin.getEventManager().getSpectators().containsKey(player.getUniqueId())) {
+                                        this.plugin.getEventManager().removeSpectator(player);
+                                        return;
+                                    }
+                                    if (party == null) {
+                                        this.plugin.getMatchManager().removeSpectator(player);
+                                        return;
+                                    }
+                                    party.leaveParty(player);
+                                    return;
+                                }
+                                case COMMAND: {
+                                    String cmd = actionItem.getCommand();
+
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
+                                    return;
+                                }
+                                default: {
+                                    return;
+                                }
+                            }
                         }
-                        if (party == null) {
-                            this.plugin.getMatchManager().removeSpectator(player);
-                            break;
-                        }
-                        party.leaveParty(player);
                     }
+                    return;
+                }
+                default: {
+                    break;
                 }
             }
         }

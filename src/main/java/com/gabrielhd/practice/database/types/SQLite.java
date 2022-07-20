@@ -16,7 +16,7 @@ public class SQLite extends DataHandler {
         this.table = "pvpcountry_";
 
         this.connect(plugin);
-        this.setup(plugin);
+        this.setupTable();
     }
     
     private synchronized void connect(Practice plugin) {
@@ -31,22 +31,9 @@ public class SQLite extends DataHandler {
         }
     }
 
-    private synchronized void setup(Practice plugin) {
-        try {
-            Statement statement = this.connection.createStatement();
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + this.table + " (UUID VARCHAR(100))");
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error inserting columns! Please check your configuration!");
-            plugin.getLogger().log(Level.SEVERE, "If this error persists, please report it to the developer!");
-
-            e.printStackTrace();
-        }
-
-        plugin.getLogger().log(Level.INFO, "SQLite Setup finished");
-    }
 
     @Override
-    public Object getConnection() {
+    public Connection getConnection() {
         return null;
     }
 }

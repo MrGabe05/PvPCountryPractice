@@ -1,7 +1,7 @@
 package com.gabrielhd.practice.settings.item;
 
 import com.gabrielhd.practice.utils.items.BuilderItem;
-import com.gabrielhd.practice.utils.items.UtilItem;
+import com.gabrielhd.practice.utils.items.ItemUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,12 +12,12 @@ import java.util.List;
 
 public enum ProfileOptionsItem {
 
-    DUEL_REQUESTS("DUEL_REQUESTS", 0, UtilItem.createItem(Material.DIAMOND_SWORD, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Duelos"), "¿Quieres aceptar solicitudes de duelo?"),
-    PARTY_INVITES("PARTY_INVITES", 1, UtilItem.createItem(Material.NAME_TAG, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Invitaciones de Party"), "¿Quieres aceptar invitaciones de party?"),
-    TOGGLE_SCOREBOARD("TOGGLE_SCOREBOARD", 2, UtilItem.createItem(Material.EMPTY_MAP, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Alternar Scoreboard"), "Alterna el estado de tu Scoreboard"), 
-    ALLOW_SPECTATORS("ALLOW_SPECTATORS", 3, UtilItem.createItem(Material.COMPASS, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Permitir Espectadores"), "¿Permitir que los jugadores vean tus combates?"), 
-    TOGGLE_TIME("TOGGLE_TIME", 4, UtilItem.createItem(Material.SLIME_BALL, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Alternar Tiempo"), "Alternar entre día, atardecer y noche."),
-    TRAILS("TRAILS", 5, UtilItem.createItem(Material.ARROW, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Trails"), "Elige tu rastro de flecha preferido.");
+    DUEL_REQUESTS("DUEL_REQUESTS", 0, ItemUtil.createItem(Material.DIAMOND_SWORD, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Duelos"), "¿Quieres aceptar solicitudes de duelo?"),
+    PARTY_INVITES("PARTY_INVITES", 1, ItemUtil.createItem(Material.NAME_TAG, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Invitaciones de Party"), "¿Quieres aceptar invitaciones de party?"),
+    TOGGLE_SCOREBOARD("TOGGLE_SCOREBOARD", 2, ItemUtil.createItem(Material.EMPTY_MAP, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Alternar Scoreboard"), "Alterna el estado de tu Scoreboard"),
+    ALLOW_SPECTATORS("ALLOW_SPECTATORS", 3, ItemUtil.createItem(Material.COMPASS, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Permitir Espectadores"), "¿Permitir que los jugadores vean tus combates?"),
+    TOGGLE_TIME("TOGGLE_TIME", 4, ItemUtil.createItem(Material.SLIME_BALL, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Alternar Tiempo"), "Alternar entre día, atardecer y noche."),
+    TRAILS("TRAILS", 5, ItemUtil.createItem(Material.ARROW, 1, (short)0, String.valueOf(ChatColor.GOLD.toString()) + ChatColor.BOLD + "Trails"), "Elige tu rastro de flecha preferido.");
     
     private final ItemStack item;
     private final List<String> description;
